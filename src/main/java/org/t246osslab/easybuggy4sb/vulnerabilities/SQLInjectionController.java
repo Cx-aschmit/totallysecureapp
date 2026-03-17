@@ -54,8 +54,9 @@ public class SQLInjectionController extends AbstractController {
 	}
 
 	private List<User> selectUsers(String name, String password) {
-		String sql = "SELECT  name, secret from USERS where name='"+ name + "' or password='"+ password + "'" ;
-		return jdbcTemplate.query(sql, new RowMapper<User>() {
+		// Use parameterized query to prevent SQL injection
+		String sql = "SELECT name, secret FROM USERS WHERE name = ? OR password = ?";
+		return jdbcTemplate.query(sql, new Object[]{name, password}, new RowMapper<User>() {
                     public User mapRow(ResultSet rs, int rowNum) throws SQLException {
                         User user = new User();
                         user.setName(rs.getString("name"));
