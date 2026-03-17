@@ -2,9 +2,8 @@ package org.t246osslab.easybuggy4sb.vulnerabilities;
 
 import java.util.Locale;
 
-import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
-import javax.script.ScriptException;
+import com.google.gson.JsonParser;
+import com.google.gson.JsonSyntaxException;
 
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Controller;
@@ -30,17 +29,12 @@ public class CodeInjectionController extends AbstractController {
 	}
 
     private void parseJson(String jsonString, ModelAndView mav, Locale locale) {
-        /* Remove spaces and line breaks to parse as JSON */
-        String convertedJsonString = jsonString.replaceAll(" ", "");
-        convertedJsonString = convertedJsonString.replaceAll("\r\n", "");
-        convertedJsonString = convertedJsonString.replaceAll("\n", "");
         try {
-            /* Parse the input string as JSON */
-        	ScriptEngineManager manager = new ScriptEngineManager();
-        	ScriptEngine scriptEngine = manager.getEngineByName("JavaScript");
-        	scriptEngine.eval("JSON.parse('" + convertedJsonString + "')");
+            /* Parse the input string as JSON using a safe JSON parser */
+            JsonParser jsonParser = new JsonParser();
+            jsonParser.parse(jsonString);
         	mav.addObject("msg", msg.getMessage("msg.valid.json", null, locale));
-        } catch (ScriptException e) {
+        } catch (JsonSyntaxException e) {
         	mav.addObject("errmsg", msg.getMessage("msg.invalid.json",
         			new String[] { e.getMessage() }, null, locale));
         } catch (Exception e) {
